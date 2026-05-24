@@ -1,0 +1,53 @@
+diff --git a/pencil.koplugin/main.lua b/pencil.koplugin/main.lua
+index 1bbe828..eb034c2 100644
+--- a/pencil.koplugin/main.lua
++++ b/pencil.koplugin/main.lua
+@@ -332,9 +332,40 @@ function Pencil:setupStylusCallback()
+     end)
+ 
+     self.stylus_callback_registered = true
++    self:setupSonyDhw()
+     logger.info("Pencil: stylus callback registered")
+ end
+ 
++-- Sony DPT-CP1 kernel low-latency stylus path (Direct Handwriting).
++-- The android-luajit-launcher patch adds android.stylusDhw* methods which
++-- talk to libSystemUtil.so on the device; outside Sony hardware they are
++-- a no-op and stylusDhwAvailable() returns false.
++function Pencil:setupSonyDhw()
++    if not Device:isAndroid() or not android or not android.stylusDhwAvailable then
++        return
++    end
++    if not android.stylusDhwAvailable() then return end
++    local tool_settings = self.tool_settings[TOOL_PEN] or {}
++    local pen_width = math.max(1, math.floor(tool_settings.width or 3))
++    local rotation = Screen:getRotationMode()
++    local rotation_deg = (rotation == 1 or rotation == 3) and 90 or 0
++    android.stylusDhwSetArea(0, 0, Screen:getWidth(), Screen:getHeight(),
++                             pen_width, rotation_deg)
++    android.stylusDhwEnable()
++    self.sony_dhw_active = true
++    logger.info("Pencil: Sony DHW enabled",
++                "screen=", Screen:getWidth(), "x", Screen:getHeight(),
++                "pen=", pen_width, "rot=", rotation_deg)
++end
++
++function Pencil:teardownSonyDhw()
++    if not self.sony_dhw_active then return end
++    if android and android.stylusDhwDisable then android.stylusDhwDisable() end
++    if android and android.stylusDhwClearArea then android.stylusDhwClearArea() end
++    self.sony_dhw_active = false
++    logger.info("Pencil: Sony DHW disabled")
++end
++
+ -- Transform stylus coordinates based on screen rotation
+ -- Raw stylus coordinates are in hardware space; framebuffer expects logical (rotated) space
+ function Pencil:transformCoordinates(x, y)
+@@ -599,6 +630,7 @@ function Pencil:teardownStylusCallback()
+         Input:unregisterStylusCallback()
+     end
+ 
++    self:teardownSonyDhw()
+     self.stylus_callback_registered = false
+     self.pen_down = false
+     logger.info("Pencil: stylus callback unregistered")
