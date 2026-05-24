@@ -1,0 +1,16 @@
+# Build outputs
+.gradle/
+build/
+app/build/
+local.properties
+captures/
+
+# IDE
+.idea/
+*.iml
+
+# macOS
+.DS_Store
+
+# Decompiled reference material (large; not part of the app)
+reference/
