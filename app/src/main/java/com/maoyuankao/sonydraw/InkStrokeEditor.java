@@ -118,4 +118,40 @@ public class InkStrokeEditor implements StrokeDetector.OnStrokeListener {
         mPath.reset();
         mCanvas.restore();
     }
+
+    /**
+     * Replay a list of finished strokes onto a fresh canvas. Used after an
+     * erase removes strokes from the persistent list — we wipe the stroke
+     * bitmap and re-render what's left. Uses a Paint.STROKE polyline (round
+     * caps/joins) which matches the live FILL-polygon output visually at
+     * constant width but is simpler to reason about for batch redraw.
+     */
+    public static void renderAll(List<Stroke> strokes, Canvas canvas, float pixelWidth) {
+        Paint paint = new Paint();
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(pixelWidth);
+        paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setStrokeJoin(Paint.Join.ROUND);
+        paint.setColor(0xFF000000);
+        paint.setAntiAlias(false);
+        paint.setDither(false);
+
+        android.graphics.Path path = new android.graphics.Path();
+        for (Stroke s : strokes) {
+            List<android.graphics.PointF> pts = s.getPoints();
+            if (pts.isEmpty()) continue;
+            path.reset();
+            android.graphics.PointF first = pts.get(0);
+            if (pts.size() == 1) {
+                canvas.drawCircle(first.x, first.y, pixelWidth / 2f, paint);
+                continue;
+            }
+            path.moveTo(first.x, first.y);
+            for (int i = 1; i < pts.size(); i++) {
+                android.graphics.PointF p = pts.get(i);
+                path.lineTo(p.x, p.y);
+            }
+            canvas.drawPath(path, paint);
+        }
+    }
 }

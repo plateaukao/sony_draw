@@ -2,6 +2,8 @@ package com.maoyuankao.sonydraw;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.util.Log;
@@ -36,6 +38,19 @@ public class RenderingThread extends Thread {
     private boolean mFinalize;
     private boolean mFirstFrameDone;
 
+    private PointF mEraserCenter;
+    private float mEraserRadius;
+    private final Paint mEraserPaint = new Paint();
+
+    {
+        mEraserPaint.setStyle(Paint.Style.STROKE);
+        mEraserPaint.setStrokeWidth(2f);
+        mEraserPaint.setStrokeCap(Paint.Cap.ROUND);
+        mEraserPaint.setStrokeJoin(Paint.Join.ROUND);
+        mEraserPaint.setColor(0xFF000000);
+        mEraserPaint.setAntiAlias(false);
+    }
+
     public RenderingThread(SurfaceHolder holder) { mHolder = holder; }
 
     public synchronized void setStrokeBitmap(Bitmap b, int w, int h) {
@@ -46,6 +61,11 @@ public class RenderingThread extends Thread {
 
     public synchronized void invalidate(Rect r) {
         if (r != null && !r.isEmpty()) mPendingDirty.union(r);
+    }
+
+    public synchronized void setEraserCenter(PointF center, float radius) {
+        mEraserCenter = center;
+        mEraserRadius = radius;
     }
 
     public synchronized void requestRender() {
@@ -121,9 +141,14 @@ public class RenderingThread extends Thread {
         try {
             canvas.drawColor(-1);           // white background
             Bitmap bm;
-            synchronized (this) { bm = mStrokeBitmap; }
+            PointF ec;
+            float er;
+            synchronized (this) { bm = mStrokeBitmap; ec = mEraserCenter; er = mEraserRadius; }
             if (bm != null && !bm.isRecycled()) {
                 canvas.drawBitmap(bm, 0, 0, null);
+            }
+            if (ec != null && er > 0f) {
+                canvas.drawCircle(ec.x, ec.y, er, mEraserPaint);
             }
         } finally {
             mHolder.unlockCanvasAndPost(canvas);
