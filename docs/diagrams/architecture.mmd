@@ -1,0 +1,29 @@
+flowchart TD
+    ME["MotionEvent<br/>TOOL_TYPE_STYLUS or TOOL_TYPE_ERASER"]
+    SV["StylusView<br/>per-event tool dispatch<br/>owns persistent stroke list"]
+    ISE["InkStrokeEditor<br/>rasterises into stroke bitmap<br/>(tapered quad + circle)"]
+    SD["StrokeDetector<br/>replays sub-frame<br/>historical samples"]
+    EM["EraseMath<br/>circle / segment hit tests<br/>vs persisted strokes"]
+    RT["RenderingThread<br/>SurfaceView frame loop<br/>DU mid-stroke / GC16 on lift"]
+    EH["EpdHelper<br/>reflection into Sony framework<br/>lockCanvas(Rect, int)"]
+    DHW["DirectHandwriting<br/>kernel fast path<br/>via libSystemUtil.so JNI"]
+    EPD(["EPD waveform controller<br/>(panel + kernel driver)"])
+
+    ME --> SV
+    SV -- "pen events" --> ISE
+    SV -- "eraser events" --> EM
+    ISE -. uses .-> SD
+    EM -- "surviving strokes" --> ISE
+    ISE --> RT
+    RT --> EH
+    EH --> EPD
+    SV -. "allow-area + enable/disable" .-> DHW
+    DHW --> EPD
+
+    classDef sony fill:#fef3c7,stroke:#b45309,color:#000
+    classDef java fill:#dbeafe,stroke:#1d4ed8,color:#000
+    classDef boundary fill:#e5e7eb,stroke:#374151,color:#000
+    class ME boundary
+    class SV,ISE,SD,EM,RT java
+    class EH,DHW sony
+    class EPD boundary

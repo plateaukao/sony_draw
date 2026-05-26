@@ -16,43 +16,9 @@ nav_order: 2
 
 A stylus touch travels through four layers before pixels appear on the e-ink panel. None of these layers makes sense in isolation — they exist as a unit because each one is solving a separate problem the layer below it doesn't know about.
 
-```
-MotionEvent (TOOL_TYPE_STYLUS or TOOL_TYPE_ERASER)
-     │
-     ▼
-┌─────────────────────────────────────────────────────────────────┐
-│ StylusView                                                      │
-│   per-event tool dispatch (pen vs eraser, no UI toggle)         │
-│   owns the persistent stroke list + the stroke Bitmap           │
-└─────────────────────────────────────────────────────────────────┘
-     │                              │
-     │ pen events                   │ eraser events
-     ▼                              ▼
-┌──────────────────────┐     ┌──────────────────────────────────┐
-│ InkStrokeEditor      │     │ EraseMath                        │
-│   tapered quad+      │     │   circle / segment / segment-    │
-│   circle rasteriser  │     │   cross hit tests vs persisted   │
-│   via StrokeDetector │     │   strokes                        │
-│   (replays historical│     └──────────────────────────────────┘
-│   sub-frame samples) │              │
-└──────────────────────┘              │ surviving strokes re-rasterised
-     │                                │ by InkStrokeEditor.renderAll
-     │ rasterised pixels              │
-     ▼                                ▼
-┌─────────────────────────────────────────────────────────────────┐
-│ RenderingThread                                                 │
-│   owns the SurfaceView frame loop                               │
-│   chooses waveform mode (DU mid-stroke, GC16 partial on lift)   │
-└─────────────────────────────────────────────────────────────────┘
-     │
-     ▼
-┌─────────────────────────────────────────────────────────────────┐
-│ EpdHelper                                                       │
-│   reflection into Sony's SurfaceHolder overloads                │
-│   lockCanvas(Rect dirty, int updateMode)                        │
-│   falls back to plain lockCanvas() on non-Sony devices          │
-└─────────────────────────────────────────────────────────────────┘
-```
+![sony_draw architecture: MotionEvent → StylusView → InkStrokeEditor / EraseMath → RenderingThread → EpdHelper → EPD panel, with DirectHandwriting as a parallel kernel fast-path]({{ site.baseurl }}/diagrams/architecture.png){: .mt-3 .mb-3 style="max-width:560px;" }
+
+Blue nodes are this app's Java code; yellow nodes reach into Sony's framework (via reflection or JNI); grey nodes are external boundaries — the OS event source at the top, the panel + kernel driver at the bottom. The source of this diagram is in `docs/diagrams/architecture.mmd`; run `docs/diagrams/regen.sh` to rebuild the PNG.
 
 ## Why these layers, in this order
 

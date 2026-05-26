@@ -22,36 +22,11 @@ The full step-by-step is in [`patches/README.md`](https://github.com/plateaukao/
 
 ## Three repos, three patches
 
-KOReader's Android build is a stack of submodules. The fix has to touch three layers:
+KOReader's Android build is a stack of submodules. The fix has to touch three layers, and then the bottom layer reflects/JNIs into the DPT-CP1's own system files:
 
-```
-┌──────────────────────────────────────────────────────────┐
-│ pencil.koplugin (3rd-party)                              │
-│   patches/pencil-sony-android.patch                      │
-│   • calls android.stylusDhw* around stylus lifecycle     │
-└──────────────────────────────────────────────────────────┘
-                          ▲
-                          │ Lua FFI
-                          ▼
-┌──────────────────────────────────────────────────────────┐
-│ koreader-base (submodule)                                │
-│   commit 250ae579: input_android.lua                     │
-│   • AMotionEvent_getToolType → ABS_MT_TOOL_TYPE          │
-│     (so the pencil plugin's tool-based eraser            │
-│     detection works on Android the same way it           │
-│     already does on Kobo)                                │
-└──────────────────────────────────────────────────────────┘
-                          ▲
-                          │ JNI
-                          ▼
-┌──────────────────────────────────────────────────────────┐
-│ android-luajit-launcher (submodule)                      │
-│   commit f744b56: SonyDhw.kt, SonyEPDController.kt,      │
-│   EPDFactory routing, JNI bridge for stylusDhw*          │
-│   • Kotlin equivalents of sony_draw's EpdHelper and      │
-│     DirectHandwriting                                    │
-└──────────────────────────────────────────────────────────┘
-```
+![KOReader port layers: pencil.koplugin (patched) ↔ koreader-base (tool-type propagation) ↔ android-luajit-launcher (SonyDhw.kt, SonyEPDController.kt) → DPT-CP1 (/system/lib/libSystemUtil.so, EPDHelper.jar in /system/framework)]({{ site.baseurl }}/diagrams/koreader-port.png){: .mt-3 .mb-3 style="max-width:520px;" }
+
+Yellow boxes are patched / new code; grey boxes are device-resident vendor files we link against. Source: `docs/diagrams/koreader-port.mmd`.
 
 The pieces line up one-to-one with `sony_draw`'s Java:
 

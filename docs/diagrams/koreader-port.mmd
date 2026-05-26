@@ -1,0 +1,28 @@
+flowchart TB
+    subgraph plugin ["pencil.koplugin (3rd-party, patched)"]
+        PP["main.lua<br/>setupSonyDhw / teardownSonyDhw<br/>around stylus lifecycle"]
+    end
+    subgraph base ["koreader-base (submodule)"]
+        IA["ffi/input_android.lua<br/>AMotionEvent_getToolType<br/>→ synthesise ABS_MT_TOOL_TYPE"]
+    end
+    subgraph launcher ["android-luajit-launcher (submodule)"]
+        SDh["SonyDhw.kt<br/>(twin of DirectHandwriting.java)"]
+        SEC["SonyEPDController.kt<br/>(twin of EpdHelper.java)"]
+        BR["MainActivity JNI bridge<br/>stylusDhw* / EPD invalidate"]
+    end
+    subgraph dev ["DPT-CP1 device"]
+        SO["/system/lib/libSystemUtil.so"]
+        FW["EPDHelper.jar in /system/framework"]
+    end
+
+    PP == "Lua FFI<br/>android.stylusDhw*" ==> BR
+    IA -. "slot.tool" .-> PP
+    BR --> SDh
+    BR --> SEC
+    SDh == "JNI" ==> SO
+    SEC == "reflection" ==> FW
+
+    classDef patched fill:#fef3c7,stroke:#b45309,color:#000
+    classDef vendor fill:#e5e7eb,stroke:#374151,color:#000
+    class PP,IA,SDh,SEC,BR patched
+    class SO,FW vendor
