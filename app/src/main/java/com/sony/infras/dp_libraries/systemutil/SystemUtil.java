@@ -1,5 +1,7 @@
 package com.sony.infras.dp_libraries.systemutil;
 
+import android.util.Log;
+
 import android.graphics.Rect;
 
 /**
@@ -8,10 +10,26 @@ import android.graphics.Rect;
  * "com/sony/infras/dp_libraries/systemutil/SystemUtil"), so the package and
  * the native method signatures must match the originals byte-for-byte.
  *
+ * The .so itself is not bundled with the APK — it's loaded by absolute path
+ * from the device's own /system/lib/. This keeps Sony's proprietary binary
+ * out of the source tree, and the device's own copy is by definition the
+ * right one for that firmware.
+ *
+ * On non-Sony Android the load fails; {@link #isAvailable()} returns false
+ * and the app's caller code (see DirectHandwriting) treats the DHW path as
+ * absent. The same APK then still runs (slowly) for development.
+ *
  * Only the Direct Handwriting (DHW) calls used by stylus drawing are kept.
  */
 public class SystemUtil {
+    private static final String TAG = "SystemUtil";
 
+    private static final String[] SO_PATHS = {
+            "/system/lib/libSystemUtil.so",
+            "/vendor/lib/libSystemUtil.so",
+    };
+
+    private static final boolean sLibLoaded;
     private static final SystemUtil sInstance;
     private static EpdUtil sEpd;
 
@@ -30,11 +48,28 @@ public class SystemUtil {
     public native int setStandbyScreenImage(byte[] data);
 
     static {
-        System.loadLibrary("SystemUtil");
+        boolean loaded = false;
+        Throwable lastError = null;
+        for (String path : SO_PATHS) {
+            try {
+                System.load(path);
+                Log.i(TAG, "Loaded " + path);
+                loaded = true;
+                break;
+            } catch (Throwable t) {
+                lastError = t;
+            }
+        }
+        if (!loaded) {
+            Log.w(TAG, "libSystemUtil.so not available on this device; DHW disabled", lastError);
+        }
+        sLibLoaded = loaded;
         sInstance = new SystemUtil();
     }
 
     private SystemUtil() { }
+
+    public static boolean isAvailable() { return sLibLoaded; }
 
     public static EpdUtil getEpdUtilInstance() {
         if (sEpd == null) sEpd = sInstance.new EpdUtil();

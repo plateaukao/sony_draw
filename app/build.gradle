@@ -12,9 +12,9 @@ android {
         targetSdk 22
         versionCode 1
         versionName "1.0"
-        ndk {
-            abiFilters 'armeabi-v7a'
-        }
+        // No abiFilters: the only native library (libSystemUtil.so) is loaded
+        // from the device's own /system/lib/ at runtime — see SystemUtil.java.
+        // The APK contains no native code, so it's CPU-architecture-agnostic.
     }
 
     buildTypes {
@@ -26,11 +26,5 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    packagingOptions {
-        jniLibs {
-            useLegacyPackaging true
-        }
     }
 }

@@ -25,13 +25,17 @@ public final class DirectHandwriting {
 
     private DirectHandwriting() {}
 
+    public static boolean isAvailable() { return SystemUtil.isAvailable(); }
+
     public static void enable() {
+        if (!SystemUtil.isAvailable()) return;
         try {
             SystemUtil.getEpdUtilInstance().setDhwState(true);
         } catch (Throwable t) { Log.w(TAG, "setDhwState(true) failed", t); }
     }
 
     public static void disable() {
+        if (!SystemUtil.isAvailable()) return;
         try {
             SystemUtil.getEpdUtilInstance().setDhwState(false);
         } catch (Throwable t) { Log.w(TAG, "setDhwState(false) failed", t); }
@@ -40,6 +44,7 @@ public final class DirectHandwriting {
     /** rect must be in absolute screen coordinates (use View.getGlobalVisibleRect). */
     public static void setAllowArea(Rect rect, int strokePixelWidth, int rotationDeg) {
         if (rect == null || rect.isEmpty()) return;
+        if (!SystemUtil.isAvailable()) return;
         int penWidth = Math.max(1, strokePixelWidth);
         int rotation = rotationDeg == 90 ? 1 : 0;
         try {
@@ -52,6 +57,7 @@ public final class DirectHandwriting {
     }
 
     public static void clearAllowArea() {
+        if (!SystemUtil.isAvailable()) return;
         try {
             SystemUtil.getEpdUtilInstance().removeAllDhwArea();
             sCurrentAreaId = -1;
