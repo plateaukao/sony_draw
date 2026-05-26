@@ -29,11 +29,11 @@ Out-of-the-box third-party Android apps can install (the device runs an unmodifi
 
 ## How to read these docs
 
-1. [Architecture]({{ site.baseurl }}/architecture/) — the four-layer pipeline from MotionEvent to e-ink pixels, with a diagram.
-2. [E-ink pipeline]({{ site.baseurl }}/eink-pipeline/) — EPD waveform modes, why DU during the stroke and GC16 on lift, how `EpdHelper` reflects into Sony's framework.
-3. [Direct Handwriting]({{ site.baseurl }}/direct-handwriting/) — the kernel fast-path, the JNI binding to `libSystemUtil.so`, and the package-name landmine.
-4. [Build & install]({{ site.baseurl }}/build/) — Gradle invocation, the deliberate SDK locks, and how to develop on a non-Sony Android device.
-5. [Porting to KOReader]({{ site.baseurl }}/koreader-port/) — using the same primitives to bring stylus support to KOReader's `pencil.koplugin`.
+1. [Architecture]({{ site.baseurl }}/architecture.html) — the four-layer pipeline from MotionEvent to e-ink pixels, with a diagram.
+2. [E-ink pipeline]({{ site.baseurl }}/eink-pipeline.html) — EPD waveform modes, why DU during the stroke and GC16 on lift, how `EpdHelper` reflects into Sony's framework.
+3. [Direct Handwriting]({{ site.baseurl }}/direct-handwriting.html) — the kernel fast-path, the JNI binding to `libSystemUtil.so`, and the package-name landmine.
+4. [Build & install]({{ site.baseurl }}/build.html) — Gradle invocation, the deliberate SDK locks, and how to develop on a non-Sony Android device.
+5. [Porting to KOReader]({{ site.baseurl }}/koreader-port.html) — using the same primitives to bring stylus support to KOReader's `pencil.koplugin`.
 
 ## Status
 

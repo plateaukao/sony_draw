@@ -71,8 +71,8 @@ Read these before "cleaning up" the code:
 - **`Region.Op.REPLACE` in `InkStrokeEditor.drawSegment`** — deprecated on stock Android, works on Sony's device. Without it the eraser's dirty rect grows unboundedly because each segment paint touches the entire previous canvas state.
 - **`paint.setAntiAlias(false)` everywhere** — EPD DU mode is 1-bit. Anti-aliased greys produce dithered output that the next DU update can't redraw cleanly, leaving smeared ghosts.
 - **DHW is toggled off during eraser strokes** — the kernel fast-path doesn't know about "eraser". If you don't disable it, the eraser motion gets painted as ink by the framebuffer driver, and you erase a stroke while leaving a fresh black line where you erased.
-- **The package path `com/sony/infras/dp_libraries/systemutil/SystemUtil` is exact** — see [Direct Handwriting]({{ site.baseurl }}/direct-handwriting/#jni-package-name-landmine).
-- **`libSystemUtil.so` is loaded by absolute path, not by `loadLibrary`** — we don't redistribute Sony's binary; we point `System.load` at `/system/lib/libSystemUtil.so` on the device. This works only because the DPT-CP1 is API 22 (before Android 7's linker namespace isolation). See [Direct Handwriting]({{ site.baseurl }}/direct-handwriting/#loading-without-bundling-the-binary).
+- **The package path `com/sony/infras/dp_libraries/systemutil/SystemUtil` is exact** — see [Direct Handwriting]({{ site.baseurl }}/direct-handwriting.html#jni-package-name-landmine).
+- **`libSystemUtil.so` is loaded by absolute path, not by `loadLibrary`** — we don't redistribute Sony's binary; we point `System.load` at `/system/lib/libSystemUtil.so` on the device. This works only because the DPT-CP1 is API 22 (before Android 7's linker namespace isolation). See [Direct Handwriting]({{ site.baseurl }}/direct-handwriting.html#loading-without-bundling-the-binary).
 
 ## Reference material
 

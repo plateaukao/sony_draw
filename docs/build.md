@@ -18,7 +18,7 @@ nav_order: 5
 - Android SDK with platform 33 installed
 - `adb` on `$PATH` if you want to install to a device
 
-The build does **not** need the Android NDK. There's no native code in the APK; the only `.so` it ever uses (`libSystemUtil.so`) lives on the target device's own `/system/lib/` and is loaded at runtime — see [Direct Handwriting]({{ site.baseurl }}/direct-handwriting/#loading-without-bundling-the-binary).
+The build does **not** need the Android NDK. There's no native code in the APK; the only `.so` it ever uses (`libSystemUtil.so`) lives on the target device's own `/system/lib/` and is loaded at runtime — see [Direct Handwriting]({{ site.baseurl }}/direct-handwriting.html#loading-without-bundling-the-binary).
 
 ## Building
 
@@ -72,7 +72,7 @@ These are deliberate. The DPT-CP1's firmware is Android 5.1.1 (API 22), and:
 - **`compileSdk 33`** is fine because we only call APIs that exist on the device. Compiling against a newer SDK gives access to better tooling without changing runtime behaviour.
 - **`minSdk 22`** matches `targetSdk` since this app is single-device.
 
-Do not bump `targetSdk` to "fix" any deprecation warnings. The deprecation warnings are mostly about `Region.Op.REPLACE` in `InkStrokeEditor` — which is exactly what we need, see [Architecture]({{ site.baseurl }}/architecture/#things-that-look-weird-but-are-load-bearing).
+Do not bump `targetSdk` to "fix" any deprecation warnings. The deprecation warnings are mostly about `Region.Op.REPLACE` in `InkStrokeEditor` — which is exactly what we need, see [Architecture]({{ site.baseurl }}/architecture.html#things-that-look-weird-but-are-load-bearing).
 
 ## Developing without a DPT-CP1
 
