@@ -1,0 +1,20 @@
+title: sony_draw
+description: Low-latency stylus drawing for the Sony DPT-CP1 e-ink reader
+remote_theme: just-the-docs/just-the-docs
+
+plugins:
+  - jekyll-remote-theme
+
+color_scheme: light
+search_enabled: true
+
+aux_links:
+  GitHub:
+    - https://github.com/plateaukao/sony_draw
+
+heading_anchors: true
+
+footer_content: >
+  Source on <a href="https://github.com/plateaukao/sony_draw">GitHub</a>.
+  Sony DPT-CP1 is a trademark of Sony Corp.; this project is an independent
+  reverse-engineering effort and is not affiliated with Sony.
